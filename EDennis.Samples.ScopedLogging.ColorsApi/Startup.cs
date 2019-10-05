@@ -43,7 +43,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
             //services.RemoveAll(typeof(M.ILogger<>));
 
             services.AddScoped<ScopeProperties>();
-            services.AddSingleton(new DefaultLoggerChooserSpec());
+            services.AddSingleton(new DefaultLoggerChooser());
             services.AddSingleton(new SerilogLoggerFactory());
             services.AddSingleton(typeof(ILogger<>), typeof(TraceLogger<>));
             //services.AddSingleton(Program.TraceLogger as M.ILogger);
