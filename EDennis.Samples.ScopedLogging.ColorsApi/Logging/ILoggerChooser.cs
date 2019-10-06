@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using EDennis.AspNetCore.Base;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace EDennis.AspNetCore.Base.Logging
 {
     public interface ILoggerChooser
     {
-        void AddCriterion(string scopePropertiesKey, string scopePropertiesValue, int loggerIndex = 1);
-        void RemoveCriterion(string scopePropertiesKey, string scopePropertiesValue);
-        void ClearCriteria();
-
-        void SetLoggerIndex(ScopeProperties scopeProperties);
+        static int DefaultIndex;
         bool Enabled { get; set; }
-
-        event EventHandler Changed;
+        void AddCriterion(string scopePropertiesEntry, int loggerIndex);
+        void ClearCriteria();
+        void RemoveCriterion(string scopePropertiesEntry, int loggerIndex);
+        int GetLoggerIndex(ScopeProperties scopeProperties);
+        Dictionary<string, int> GetSettings();
     }
 }

@@ -11,77 +11,49 @@ namespace EDennis.AspNetCore.Base.Logging
     /// <summary>
     /// SINGLETON -- HOLDS SPECS FOR WHICH LOGGER IS USED
     /// </summary>
-    public abstract class LoggerChooser : List<LoggerChooserEntry>, ILoggerChooser
+    public abstract class LoggerChooser : ILoggerChooser
     {
+        private readonly Dictionary<string, int> _settings 
+            = new Dictionary<string, int>() { { "*", DefaultIndex } };
 
-        protected abstract IEnumerable<KeyValuePair<string, string>>
-            GetInputData(ScopeProperties scopeProperties);
+        public bool Enabled { get; set; }
 
-        protected bool _enabled;
+        public static int DefaultIndex = 0;
 
-        public event EventHandler Changed;
+        protected abstract IEnumerable<string> GetInputData(ScopeProperties scopeProperties);
 
-        public bool Enabled {
-            get {
-                return _enabled;
-            }
-            set {
-                _enabled = value;
 
-                Changed?.Invoke(this, null);
-            }
+        public virtual void AddCriterion(string scopePropertiesEntry, int loggerIndex) {
+            if (_settings.Count() == 0 || !_settings.ContainsKey(scopePropertiesEntry))
+                _settings.Add(scopePropertiesEntry, loggerIndex);
+            else
+                _settings[scopePropertiesEntry] = loggerIndex;
         }
 
-        public void SetLoggerIndex(ScopeProperties scopeProperties) {
+        public virtual void RemoveCriterion(string scopePropertiesEntry, int loggerIndex) {
+            if (_settings.ContainsKey(scopePropertiesEntry))
+                _settings.Remove(scopePropertiesEntry);
+        }
 
-            var keyValuePairs = GetInputData(scopeProperties);
-
-            var loggerIndex = this
-                .Where(x => keyValuePairs
-                    .Any(m => m.Key.Equals(x.ScopePropertiesKey, StringComparison.OrdinalIgnoreCase)
-                            && m.Value.Equals(x.ScopePropertiesValue, StringComparison.OrdinalIgnoreCase)))
-                .FirstOrDefault()
-                ?.LoggerIndex ?? 0;
-
-            scopeProperties.LoggerIndex = loggerIndex;
-
+        public virtual void ClearCriteria() {
+            _settings.Clear();
+            _settings.Add("*", DefaultIndex);
         }
 
 
-        public virtual void AddCriterion(string scopePropertiesKey, string scopePropertiesValue, int loggerIndex = 1) {
-            for (int i = 0; i < this.Count; i++) {
-                if (this[i].ScopePropertiesKey == scopePropertiesKey
-                       && this[i].ScopePropertiesValue == scopePropertiesValue) {
-                    this[i].LoggerIndex = loggerIndex;
-                    break;
-                } else {
-                    Add(new LoggerChooserEntry { 
-                        ScopePropertiesKey = scopePropertiesKey,
-                        ScopePropertiesValue = scopePropertiesValue,
-                        LoggerIndex = loggerIndex
-                    });
-                }
-            }
+        public virtual int GetLoggerIndex(ScopeProperties scopeProperties) {
+            var scopePropertiesEntries = GetInputData(scopeProperties);
+            foreach (var s in _settings)
+                foreach (var sp in scopePropertiesEntries)
+                    if (s.Key == sp)
+                        return s.Value;
+            return DefaultIndex;
         }
 
-        public virtual void RemoveCriterion(string scopePropertiesKey, string scopePropertiesValue) {
-            for (int i = 0; i < this.Count; i++) {
-                if (this[i].ScopePropertiesKey == scopePropertiesKey
-                       && this[i].ScopePropertiesValue == scopePropertiesValue) {
-                    RemoveAt(i);
-                    break;
-                }
-            }
-        }
-        public virtual void ClearCriteria() => Clear();
+        public Dictionary<string, int> GetSettings() => _settings;
+
 
     }
 
-    public class LoggerChooserEntry
-    {
-        public string ScopePropertiesKey { get; set; }
-        public string ScopePropertiesValue { get; set; }
-        public int LoggerIndex { get; set; }
-    }
 
 }

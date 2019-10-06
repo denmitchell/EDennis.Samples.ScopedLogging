@@ -21,6 +21,9 @@ using Serilog.Events;
 using EDennis.AspNetCore.Base;
 using EDennis.Samples.ScopedLogging.ColorsApi.Middleware;
 using EDennis.Samples.ScopedLogging.ColorsApi.Logging;
+using EDennis.AspNetCore.Base.Logging;
+using EDennis.AspNetCore.Base.Testing;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace EDennis.Samples.ScopedLogging.ColorsApi
 {
@@ -43,10 +46,9 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
             //services.RemoveAll(typeof(M.ILogger<>));
 
             services.AddScoped<ScopeProperties>();
-            services.AddSingleton(new DefaultLoggerChooser());
-            services.AddSingleton(new SerilogLoggerFactory());
+            services.AddSingleton<ILoggerChooser>(new DefaultLoggerChooser());
             services.AddSingleton(typeof(ILogger<>), typeof(TraceLogger<>));
-            //services.AddSingleton(Program.TraceLogger as M.ILogger);
+
 
             services.AddDbContext<ColorDbContext>(options =>
                             options.UseSqlite($"Data Source={Environment.ContentRootPath}/color.db")
@@ -62,6 +64,13 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
 
             //ServiceProvider = services.BuildServiceProvider();
 
+            services.AddAuthentication(options => {
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie();
+
 
         }
 
@@ -74,6 +83,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAutoLogin();
 
             app.UseMiddleware<SimpleTraceLoggerTestMiddleware>();
 

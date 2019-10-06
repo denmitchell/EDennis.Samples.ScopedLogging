@@ -30,9 +30,15 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Color>>> GetColors()
         {
-            _logger.LogInformation("GetColors called");
+            _logger.LogInformation("GetColors called by {User}",
+                                HttpContext.User?.Identity?.Name ?? "unknown");
+
             var colors = await _context.Color.ToListAsync();
-            _logger.LogTrace("GetColors returning {Colors}",JToken.FromObject(colors));
+
+            _logger.LogTrace("GetColors called by {User} returning {Colors}",
+                HttpContext.User?.Identity?.Name ?? "unknown",
+                JToken.FromObject(colors).ToString());
+
             return colors;
         }
 
@@ -40,7 +46,9 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Color>> GetColor(int id)
         {
-            _logger.LogInformation("GetColor({id}) called", id);
+            _logger.LogInformation("GetColor({id}) called by {User}", id,
+                                HttpContext.User?.Identity?.Name ?? "unknown");
+
             var color = await _context.Color.FindAsync(id);
 
             if (color == null)
@@ -48,8 +56,11 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
                 return NotFound();
             }
 
-            _logger.LogTrace("GetColors returning {Color}", JToken.FromObject(color).ToString());
-            
+            _logger.LogTrace("GetColor({id}) called by {User} returning {Color}",
+                id,
+                HttpContext.User?.Identity?.Name ?? "unknown",
+                JToken.FromObject(color).ToString());
+
             return color;
         }
 
