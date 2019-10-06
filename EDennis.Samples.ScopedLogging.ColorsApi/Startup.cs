@@ -45,9 +45,8 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
             services.AddScoped<ScopeProperties>();
 
             
-            //this does not work ... define in Program class;
-            services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleTraceLogger<>));
-            services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleDebugLogger<>));
+            services.AddSingleton(typeof(ILogger<>), typeof(SerilogVerboseLogger<>));
+            services.AddSingleton(typeof(ILogger<>), typeof(SerilogDebugLogger<>));
             
 
             services.AddSingleton<ILoggerChooser>(f => {

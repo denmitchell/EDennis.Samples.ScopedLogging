@@ -13,26 +13,26 @@ namespace EDennis.AspNetCore.Base.Logging
 
         public CustomSerilogLogger(M.ILoggerFactory factory, IConfiguration configuration) {
             var simpleClassName = GetClassNameWithoutType();
-            var sink = configuration[$"Logging:Loggers:{simpleClassName}:Sink"];
-            var level = configuration[$"Logging:Loggers:{simpleClassName}:MinimumLevel"];
+            //var sink = configuration[$"Logging:Loggers:{simpleClassName}:Sink"];
+            //var level = configuration[$"Logging:Loggers:{simpleClassName}:MinimumLevel"];
             var sloggerConfig = new Serilog.LoggerConfiguration();
 
-            if (level == "Trace" || level == "Verbose")
-                sloggerConfig = sloggerConfig.MinimumLevel.Verbose();
-            else if (level == "Debug")
-                sloggerConfig = sloggerConfig.MinimumLevel.Debug();
-            else if (level == "Information")
-                sloggerConfig = sloggerConfig.MinimumLevel.Information();
-            else if (level == "Warning")
-                sloggerConfig = sloggerConfig.MinimumLevel.Warning();
-            else if (level == "Error")
-                sloggerConfig = sloggerConfig.MinimumLevel.Error();
-            else if (level == "Fatal" || level == "Critical")
-                sloggerConfig = sloggerConfig.MinimumLevel.Fatal();
+            //if (level == "Trace" || level == "Verbose")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Verbose();
+            //else if (level == "Debug")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Debug();
+            //else if (level == "Information")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Information();
+            //else if (level == "Warning")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Warning();
+            //else if (level == "Error")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Error();
+            //else if (level == "Fatal" || level == "Critical")
+            //    sloggerConfig = sloggerConfig.MinimumLevel.Fatal();
 
             var slogger = sloggerConfig            
-                    //.ReadFrom.Configuration(configuration, $"Logging:Loggers:{simpleClassName}")
-                    .WriteTo.Console()
+                    .ReadFrom.Configuration(configuration, $"Logging:Loggers:{simpleClassName}")
+                    //.WriteTo.Console()
                     .CreateLogger(); 
 
             var serilogLoggerFactory = new SerilogLoggerFactory(slogger);

@@ -17,13 +17,19 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
         public static Serilog.ILogger DebugLogger;
         public static void Main(string[] args) {
 
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.Development.json")
+                .Build();
+
             //This is the default logger.
             //   Name = "Logger", Index = 0, LogLevel = Information
             Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Information() //note: Logging:LogLevel:Default overrides this setting
-                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console()
+                        .ReadFrom.Configuration(configuration,"MyLoggingSection:Serilog")
+                        //.MinimumLevel.Fatal()
+                        //.MinimumLevel.Information() //note: Logging:LogLevel:Default overrides this setting
+                        //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                        //.Enrich.FromLogContext()
+                        //.WriteTo.Console()
                         .CreateLogger();
 
             Log.Logger.Information("Hello from Logger!");
@@ -35,7 +41,9 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                    .UseSerilog()
+                    .UseStartup<Startup>();
                 });
     }
 }
