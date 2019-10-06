@@ -16,7 +16,10 @@ namespace EDennis.AspNetCore.Base.Logging
         private readonly Dictionary<string, int> _settings 
             = new Dictionary<string, int>() { { "*", DefaultIndex } };
 
-        public bool Enabled { get; set; }
+        private readonly Dictionary<int,bool> _enabled 
+            = new Dictionary<int, bool>() { { DefaultIndex, true } };
+
+        public int Enabled { get; set; }
 
         public static int DefaultIndex = 0;
 
@@ -40,6 +43,11 @@ namespace EDennis.AspNetCore.Base.Logging
             _settings.Add("*", DefaultIndex);
         }
 
+        public virtual void ClearCriteria(int loggerIndex) {
+            foreach(var entry in _settings.Where(s=>s.Value == loggerIndex)) {
+                _settings.Remove(entry.Key);
+            }
+        }
 
         public virtual int GetLoggerIndex(ScopeProperties scopeProperties) {
             var scopePropertiesEntries = GetInputData(scopeProperties);

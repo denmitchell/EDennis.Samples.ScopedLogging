@@ -10,22 +10,19 @@ using Serilog;
 
 namespace EDennis.Samples.ScopedLogging.ColorsApi.Logging
 {
-    public class TraceLogger<T> : M.ILogger<T>
+    public abstract class CustomSerilogLogger<T> : M.ILogger<T>
     {
         private readonly M.ILogger _logger;
-        private static readonly SerilogLoggerFactory SerilogLoggerFactory;
+        private static SerilogLoggerFactory SerilogLoggerFactory;
 
-        static TraceLogger() {
-            var slogger = new S.LoggerConfiguration()
-                        .MinimumLevel.Verbose()
-                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console()
-                        .CreateLogger();
-            SerilogLoggerFactory = new SerilogLoggerFactory(slogger);
-        }
+        public abstract LoggerConfiguration GetLoggerConfiguration();
 
-        public TraceLogger(M.ILoggerFactory factory) {
+
+        public CustomSerilogLogger(M.ILoggerFactory factory) {
+            if(SerilogLoggerFactory == null) {
+                var slogger = GetLoggerConfiguration().CreateLogger();
+                SerilogLoggerFactory = new SerilogLoggerFactory(slogger);
+            }
             var category = typeof(T).Name;
             _logger = SerilogLoggerFactory.CreateLogger(category);
         }

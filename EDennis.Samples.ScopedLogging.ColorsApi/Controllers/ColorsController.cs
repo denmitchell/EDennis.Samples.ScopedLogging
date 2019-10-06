@@ -12,12 +12,27 @@ using Newtonsoft.Json.Linq;
 
 namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
 {
+
+    internal class AutoJson
+    {
+        private readonly dynamic _data;
+        public AutoJson(dynamic data) { _data = data; }
+        public override string ToString() => JToken.FromObject(_data).ToString();
+    }
+
+
     [Route("api/[controller]")]
     [ApiController]
-    public class ColorsController : ControllerBase
-    {
+    public class ColorsController : ControllerBase {
         private readonly ColorDbContext _context;
         private ILogger _logger;
+
+        internal string P { get { return HttpContext.Request.Path; } }
+        internal string C { get { return HttpContext.Request.RouteValues["controller"].ToString(); } }
+        internal string A { get { return HttpContext.Request.RouteValues["action"].ToString(); } }
+        internal string U { get { return HttpContext.User?.Identity?.Name ?? "unknown"; } }
+        internal AutoJson R(dynamic data) => new AutoJson(data);
+
         public ColorsController(ColorDbContext context, 
             IEnumerable<ILogger<ColorsController>> loggers, 
             ScopeProperties scopeProperties)
@@ -30,14 +45,12 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Color>>> GetColors()
         {
-            _logger.LogInformation("GetColors called by {User}",
-                                HttpContext.User?.Identity?.Name ?? "unknown");
+            _logger.LogInformation("For {User}, {Path}", U, P);
+            _logger.LogDebug("For {User}, {Controller}.{Action}",U,C,A);
 
             var colors = await _context.Color.ToListAsync();
 
-            _logger.LogTrace("GetColors called by {User} returning {Colors}",
-                HttpContext.User?.Identity?.Name ?? "unknown",
-                JToken.FromObject(colors).ToString());
+            _logger.LogTrace("For {User}, {Controller}.{Action}\n\tReturning: {Return}", U,C,A,R(colors));
 
             return colors;
         }
@@ -46,8 +59,8 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Color>> GetColor(int id)
         {
-            _logger.LogInformation("GetColor({id}) called by {User}", id,
-                                HttpContext.User?.Identity?.Name ?? "unknown");
+            _logger.LogInformation("For {User}, {Path}", U, P);
+            _logger.LogDebug("For {User}, {Controller}.{Action}\n\tid={id}", U, C, A, id);
 
             var color = await _context.Color.FindAsync(id);
 
@@ -56,10 +69,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
                 return NotFound();
             }
 
-            _logger.LogTrace("GetColor({id}) called by {User} returning {Color}",
-                id,
-                HttpContext.User?.Identity?.Name ?? "unknown",
-                JToken.FromObject(color).ToString());
+            _logger.LogTrace("For {User}, {Controller}.{Action}\n\tid={id}\n\tReturning: {Return}", U, C, A, id, R(color));
 
             return color;
         }

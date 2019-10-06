@@ -47,7 +47,8 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
 
             services.AddScoped<ScopeProperties>();
             services.AddSingleton<ILoggerChooser>(new DefaultLoggerChooser());
-            services.AddSingleton(typeof(ILogger<>), typeof(TraceLogger<>));
+            services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleTraceLogger<>));
+            services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleDebugLogger<>));
 
 
             services.AddDbContext<ColorDbContext>(options =>

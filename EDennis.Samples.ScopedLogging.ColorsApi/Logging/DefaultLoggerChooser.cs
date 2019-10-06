@@ -12,14 +12,13 @@ namespace EDennis.AspNetCore.Base.Logging
     /// </summary>
     public class DefaultLoggerChooser : LoggerChooser
     {
-        public const int SECONDARY_LOGGER_INDEX = 1;
         protected override IEnumerable<string> GetInputData(ScopeProperties scopeProperties) {
             return new string[] { $"User:{scopeProperties.User}" };
         }
 
-        public void AddCriterion(string user) => base.AddCriterion($"User:{user}", SECONDARY_LOGGER_INDEX);
+        public override void AddCriterion(string user, int loggerIndex) => base.AddCriterion($"User:{user}", loggerIndex);
 
-        public void RemoveCriterion(string user) => base.RemoveCriterion($"User:{user}", SECONDARY_LOGGER_INDEX);
+        public override void RemoveCriterion(string user, int loggerIndex) => base.RemoveCriterion($"User:{user}", loggerIndex);
 
 
     }

@@ -24,10 +24,7 @@ namespace EDennis.AspNetCore.Base
 
 
         public void UpdateLoggerIndex() {
-            if (_loggerChooser == null || !_loggerChooser.Enabled)
-                LoggerIndex = ILoggerChooser.DefaultIndex; 
-            else
-                LoggerIndex = _loggerChooser.GetLoggerIndex(this);
+                LoggerIndex = _loggerChooser?.Enabled ?? ILoggerChooser.DefaultIndex; 
         }
 
 
