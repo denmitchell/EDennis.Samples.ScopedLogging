@@ -14,26 +14,20 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
     public class Program
     {
         public static Serilog.ILogger TraceLogger;
+        public static Serilog.ILogger DebugLogger;
         public static void Main(string[] args) {
 
+            //This is the default logger.
+            //   Name = "Logger", Index = 0, LogLevel = Information
             Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Debug()
+                        .MinimumLevel.Information() //note: Logging:LogLevel:Default overrides this setting
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                         .Enrich.FromLogContext()
                         .WriteTo.Console()
                         .CreateLogger();
 
-            Log.Logger.Fatal("Hello from Debug Logger!");
+            Log.Logger.Information("Hello from Logger!");
 
-
-            TraceLogger = new LoggerConfiguration()
-                        .MinimumLevel.Verbose()
-                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console()
-                        .CreateLogger();
-
-            TraceLogger.Verbose("Hello from Verbose Logger");
 
             CreateHostBuilder(args).Build().Run();
         }

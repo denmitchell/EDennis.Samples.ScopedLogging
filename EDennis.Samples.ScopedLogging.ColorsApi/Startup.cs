@@ -20,7 +20,6 @@ using Serilog;
 using Serilog.Events;
 using EDennis.AspNetCore.Base;
 using EDennis.Samples.ScopedLogging.ColorsApi.Middleware;
-using EDennis.Samples.ScopedLogging.ColorsApi.Logging;
 using EDennis.AspNetCore.Base.Logging;
 using EDennis.AspNetCore.Base.Testing;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -42,14 +41,19 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
 
-            //services.RemoveAll(typeof(M.ILoggerFactory));
-            //services.RemoveAll(typeof(M.ILogger<>));
 
             services.AddScoped<ScopeProperties>();
-            services.AddSingleton<ILoggerChooser>(new DefaultLoggerChooser());
+
+            
+            //this does not work ... define in Program class;
             services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleTraceLogger<>));
             services.AddSingleton(typeof(ILogger<>), typeof(SerilogConsoleDebugLogger<>));
+            
 
+            services.AddSingleton<ILoggerChooser>(f => {
+                var loggers = f.GetRequiredService<IEnumerable<ILogger<object>>>();
+                return new DefaultLoggerChooser(loggers);
+            });
 
             services.AddDbContext<ColorDbContext>(options =>
                             options.UseSqlite($"Data Source={Environment.ContentRootPath}/color.db")

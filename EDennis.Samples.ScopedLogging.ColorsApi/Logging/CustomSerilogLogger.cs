@@ -1,30 +1,43 @@
 ﻿using Microsoft.Extensions.Configuration;
-using M = Microsoft.Extensions.Logging;
-using S = Serilog;
-using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Serilog;
+using System;
+using M = Microsoft.Extensions.Logging;
 
-namespace EDennis.Samples.ScopedLogging.ColorsApi.Logging
+namespace EDennis.AspNetCore.Base.Logging
 {
     public abstract class CustomSerilogLogger<T> : M.ILogger<T>
     {
         private readonly M.ILogger _logger;
-        private static SerilogLoggerFactory SerilogLoggerFactory;
 
-        public abstract LoggerConfiguration GetLoggerConfiguration();
+        //public abstract LoggerConfiguration GetLoggerConfiguration();
 
+        public CustomSerilogLogger(M.ILoggerFactory factory, IConfiguration configuration) {
+            var simpleClassName = GetClassNameWithoutType();
+            var sink = configuration[$"Logging:Loggers:{simpleClassName}:Sink"];
+            var level = configuration[$"Logging:Loggers:{simpleClassName}:MinimumLevel"];
+            var sloggerConfig = new Serilog.LoggerConfiguration();
 
-        public CustomSerilogLogger(M.ILoggerFactory factory) {
-            if(SerilogLoggerFactory == null) {
-                var slogger = GetLoggerConfiguration().CreateLogger();
-                SerilogLoggerFactory = new SerilogLoggerFactory(slogger);
-            }
+            if (level == "Trace" || level == "Verbose")
+                sloggerConfig = sloggerConfig.MinimumLevel.Verbose();
+            else if (level == "Debug")
+                sloggerConfig = sloggerConfig.MinimumLevel.Debug();
+            else if (level == "Information")
+                sloggerConfig = sloggerConfig.MinimumLevel.Information();
+            else if (level == "Warning")
+                sloggerConfig = sloggerConfig.MinimumLevel.Warning();
+            else if (level == "Error")
+                sloggerConfig = sloggerConfig.MinimumLevel.Error();
+            else if (level == "Fatal" || level == "Critical")
+                sloggerConfig = sloggerConfig.MinimumLevel.Fatal();
+
+            var slogger = sloggerConfig            
+                    //.ReadFrom.Configuration(configuration, $"Logging:Loggers:{simpleClassName}")
+                    .WriteTo.Console()
+                    .CreateLogger(); 
+
+            var serilogLoggerFactory = new SerilogLoggerFactory(slogger);
             var category = typeof(T).Name;
-            _logger = SerilogLoggerFactory.CreateLogger(category);
+            _logger = serilogLoggerFactory.CreateLogger(category);
         }
 
         IDisposable M.ILogger.BeginScope<TState>(TState state)
@@ -39,5 +52,13 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Logging
                                  Exception exception,
                                  Func<TState, Exception, string> formatter)
             => _logger.Log(logLevel, eventId, state, exception, formatter);
+
+        private string GetClassNameWithoutType() {
+            var name = this.GetType().Name;
+            if (!this.GetType().IsGenericType) 
+                return name;
+            return name.Substring(0, name.IndexOf('`'));
+        }
+
     }
 }

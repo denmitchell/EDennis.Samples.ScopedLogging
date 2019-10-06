@@ -1,8 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using EDennis.AspNetCore.Base;
 
 namespace EDennis.AspNetCore.Base.Logging
 {
@@ -12,6 +9,9 @@ namespace EDennis.AspNetCore.Base.Logging
     /// </summary>
     public class DefaultLoggerChooser : LoggerChooser
     {
+        public DefaultLoggerChooser(IEnumerable<ILogger<object>> loggers) : base(loggers) {
+        }
+
         protected override IEnumerable<string> GetInputData(ScopeProperties scopeProperties) {
             return new string[] { $"User:{scopeProperties.User}" };
         }

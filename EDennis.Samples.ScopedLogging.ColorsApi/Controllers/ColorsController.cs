@@ -60,7 +60,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         public async Task<ActionResult<Color>> GetColor(int id)
         {
             _logger.LogInformation("For {User}, {Path}", U, P);
-            _logger.LogDebug("For {User}, {Controller}.{Action}\n\tid={id}", U, C, A, id);
+            _logger.LogDebug("For {User}, {Controller}.{Action}, id={id}", U, C, A, id);
 
             var color = await _context.Color.FindAsync(id);
 
@@ -69,7 +69,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
                 return NotFound();
             }
 
-            _logger.LogTrace("For {User}, {Controller}.{Action}\n\tid={id}\n\tReturning: {Return}", U, C, A, id, R(color));
+            _logger.LogTrace("For {User}, {Controller}.{Action}, id={id}\n\tReturning: {Return}", U, C, A, id, R(color));
 
             return color;
         }

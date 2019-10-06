@@ -9,11 +9,9 @@ namespace EDennis.AspNetCore.Base
     {
         private readonly ILoggerChooser _loggerChooser;
 
-
         public ScopeProperties(ILoggerChooser loggerChooser = null) {
             _loggerChooser = loggerChooser;
-            if (loggerChooser != null)
-                UpdateLoggerIndex();            
+            UpdateLoggerIndex();
         }
 
         public int LoggerIndex { get; set; } = 0;
@@ -24,7 +22,10 @@ namespace EDennis.AspNetCore.Base
 
 
         public void UpdateLoggerIndex() {
-                LoggerIndex = _loggerChooser?.Enabled ?? ILoggerChooser.DefaultIndex; 
+            if (_loggerChooser == null)
+                LoggerIndex = ILoggerChooser.DefaultIndex;
+            else
+                LoggerIndex = _loggerChooser.GetLoggerIndex(this);
         }
 
 
