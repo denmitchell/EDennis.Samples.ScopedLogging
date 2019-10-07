@@ -24,8 +24,6 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class ColorsController : ControllerBase {
-        private readonly ColorDbContext _context;
-        private ILogger _logger;
 
         internal string P { get { return HttpContext.Request.Path; } }
         internal string C { get { return HttpContext.Request.RouteValues["controller"].ToString(); } }
@@ -33,6 +31,8 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
         internal string U { get { return HttpContext.User?.Identity?.Name ?? "unknown"; } }
         internal AutoJson R(dynamic data) => new AutoJson(data);
 
+        private readonly ColorDbContext _context;
+        private ILogger _logger;
         public ColorsController(ColorDbContext context, 
             IEnumerable<ILogger<ColorsController>> loggers, 
             ScopeProperties scopeProperties)

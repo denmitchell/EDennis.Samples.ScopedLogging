@@ -24,12 +24,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
             //This is the default logger.
             //   Name = "Logger", Index = 0, LogLevel = Information
             Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(configuration,"MyLoggingSection:Serilog")
-                        //.MinimumLevel.Fatal()
-                        //.MinimumLevel.Information() //note: Logging:LogLevel:Default overrides this setting
-                        //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                        //.Enrich.FromLogContext()
-                        //.WriteTo.Console()
+                        .ReadFrom.Configuration(configuration, "Logging:Loggers:Default")
                         .CreateLogger();
 
             Log.Logger.Information("Hello from Logger!");
