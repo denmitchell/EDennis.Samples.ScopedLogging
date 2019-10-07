@@ -47,7 +47,7 @@ services.AddSingleton<ILoggerChooser>(f => {
 - If using Serilog, you can read configurations for each logger from appsettings.{env}.json.
 
 ### Classes that inject loggers
-- Ensure that all classes that will need to use alternate loggers inject ```IEnumerable<ILogger<T>>``` and ```ScopeProperies``` and follow the approach demonstrated in the ColorsController constructor:
+- Ensure that all classes that will need to use alternate loggers inject ```IEnumerable<ILogger<T>>``` and ```ScopeProperties``` and follow the approach demonstrated in the ColorsController constructor:
 ```c#
 private readonly ColorDbContext _context;
 private ILogger _logger;
