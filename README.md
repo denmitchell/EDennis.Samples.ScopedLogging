@@ -4,10 +4,10 @@ To explore the demo, do the following
 1. Install a local version of Seq at port 5341 (or remove Seq settings from appsettings.development.json)
 2. Launch Visual Studio using the AutoLogin=Moe profile
 3. In the Swagger Interface, do the following:
-    3.1. [POST] /api/Loggers/Enable/1/Moe
-    3.2. [POST] /api/Loggers/Enable/2/Larry
-    3.3. [POST] /api/Loggers/Enable/2/Curly
-    3.4. [GET]  /api/Colors
+    - [POST] /api/Loggers/Enable/1/Moe
+    - [POST] /api/Loggers/Enable/2/Larry
+    - [POST] /api/Loggers/Enable/2/Curly
+    - [GET]  /api/Colors
 4. Examine the logs in the Console and/or Seq
 5. Relaunch Visual Studio using AutoLogin=Larry or AutoLogin=Curly and repeat steps 3 and 4.
 When the user is Moe and you have associated Moe with the Verbose logger (logger index = 1), you should see verbose logs (which logs the entire returned array of colors) and debug logs (which logs just the input parameters).
