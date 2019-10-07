@@ -1,31 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using EDennis.AspNetCore.Base;
+using EDennis.AspNetCore.Base.Logging;
+using EDennis.AspNetCore.Base.Testing;
 using EDennis.Samples.ScopedLogging.ColorsApi.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using S = Serilog;
-using M = Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Swagger;
-using Serilog;
-using Serilog.Events;
-using EDennis.AspNetCore.Base;
-using EDennis.Samples.ScopedLogging.ColorsApi.Middleware;
-using EDennis.AspNetCore.Base.Logging;
-using EDennis.AspNetCore.Base.Testing;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using System;
+using System.Collections.Generic;
 
-namespace EDennis.Samples.ScopedLogging.ColorsApi
-{
+namespace EDennis.Samples.ScopedLogging.ColorsApi {
     public class Startup
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env) {
@@ -88,19 +77,6 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
 
             app.UseAuthorization();
             app.UseAutoLogin();
-
-            app.UseMiddleware<SimpleTraceLoggerTestMiddleware>();
-
-            //app.Use(async (context, next) =>
-            //{
-            //    var provider = Services.BuildServiceProvider();
-            //    var scopeProperties = provider.GetRequiredService<ScopeProperties>();
-            //    if (context.Request.Query.ContainsKey("logger")) {
-            //        scopeProperties.LoggerIndex = int.Parse(context.Request.Query["logger"]);
-            //    }
-            //    await next();
-            //});
-
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
