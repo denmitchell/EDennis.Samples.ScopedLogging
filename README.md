@@ -3,7 +3,7 @@ This project demos an approach to logging in which multiple loggers (of differen
 To explore the demo, do the following
 1. Install a local version of Seq at port 5341 (or remove Seq settings from appsettings.development.json)
 2. Launch Visual Studio using the AutoLogin=Moe profile
-3. In Swagger Interface, do the following:
+3. In the Swagger Interface, do the following:
    a. [POST] /api/Loggers/Enable/1/Moe
    b. [POST] /api/Loggers/Enable/2/Larry
    c. [POST] /api/Loggers/Enable/2/Curly
