@@ -34,7 +34,7 @@ services.AddScoped<ScopeProperties>();
 services.AddSingleton(typeof(ILogger<>), typeof(SerilogVerboseLogger<>));
 services.AddSingleton(typeof(ILogger<>), typeof(SerilogDebugLogger<>));
 ```
-- Setup the ILoggerChooser as a singleton using a factory method (in order to inject IConfiguration):
+- Setup the ILoggerChooser as a singleton using a factory method (in order to inject sample loggers):
 ```c#
 services.AddSingleton<ILoggerChooser>(f => {
     var loggers = f.GetRequiredService<IEnumerable<ILogger<object>>>();
