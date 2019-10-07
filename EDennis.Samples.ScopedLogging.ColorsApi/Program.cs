@@ -13,8 +13,6 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi
 {
     public class Program
     {
-        public static Serilog.ILogger TraceLogger;
-        public static Serilog.ILogger DebugLogger;
         public static void Main(string[] args) {
 
             var configuration = new ConfigurationBuilder()
