@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace EDennis.Samples.ScopedLogging.ColorsApi.Controllers
 {
+    /// <summary>
+    /// Sample subclass of LoggersControllerBase
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LoggersController : LoggersControllerBase {
