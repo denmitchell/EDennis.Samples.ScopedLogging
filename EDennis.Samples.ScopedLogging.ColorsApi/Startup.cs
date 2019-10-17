@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
                 var repo = (ColorRepo)new ProxyGenerator()
                     .CreateClassProxy(typeof(ColorRepo),
                         new object[] { context, scopeProperties, activeLogger },
-                        new TraceInterceptor(activeLogger));
+                        new TraceInterceptor(activeLogger,scopeProperties));
                 return repo;
             });
 
@@ -86,7 +87,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider provider) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
@@ -95,6 +96,8 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
 
             app.UseAuthorization();
             app.UseAutoLogin();
+
+            app.UseSerilogRequestLogging();
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();

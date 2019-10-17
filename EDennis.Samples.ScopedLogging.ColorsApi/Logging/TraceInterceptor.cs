@@ -1,4 +1,5 @@
 ﻿using Castle.DynamicProxy;
+using EDennis.AspNetCore.Base;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,11 @@ using System.Text.RegularExpressions;
 namespace EDennis.Samples.ScopedLogging {
     public class TraceInterceptor : IInterceptor {
         private readonly ILogger logger;
+        private readonly string User;
 
-        public TraceInterceptor(ILogger logger) {
+        public TraceInterceptor(ILogger logger, ScopeProperties scopeProperties = null) {
             this.logger = logger;
+            User = scopeProperties?.User ?? "Anonymous";
         }
 
 
@@ -26,7 +29,7 @@ namespace EDennis.Samples.ScopedLogging {
                     var scope = GetScope(invocation);
                     using (logger.BeginScope(scope)) {
                         if (ex is TargetInvocationException && ex.InnerException != null)
-                            logger.LogError(ex.InnerException, "Exception {Method}(" + args + ") { Message}", method, ex.InnerException.Message);
+                            logger.LogError(ex.InnerException, "For {User}, Exception {Method}(" + args + ") { Message}", User, method, ex.InnerException.Message);
                     }
                     throw ex.InnerException;
                 }
@@ -35,17 +38,17 @@ namespace EDennis.Samples.ScopedLogging {
                 var args = invocation.Arguments.FormatCompact();
                 var method = invocation.Method.GetFriendlyName();
                 using (logger.BeginScope(scope)) {
-                    logger.LogTrace("Enter {Method}(" + args + ")", method);
+                    logger.LogTrace("For {User}, Enter {Method}(" + args + ")", User, method);
                     try {
                         invocation.Proceed();
                     } catch (Exception ex) {
                         if (ex is TargetInvocationException && ex.InnerException != null)
-                            logger.LogError(ex.InnerException, "Exception {Method}(" + args + ") { Message}", method, ex.InnerException.Message);
+                            logger.LogError(ex.InnerException, "For {User}, Exception {Method}(" + args + ") { Message}", User, method, ex.InnerException.Message);
                         throw ex.InnerException;
                     }
                     if (invocation.ReturnValue != null)
                         scope.Add("ReturnValue", invocation.ReturnValue.Format(false, false, false));
-                    logger.LogTrace("Exit {Method}(" + args + ")", method);
+                    logger.LogTrace("For {User}, Exit {Method}(" + args + ")", User, method);
                 }
             }
         }
