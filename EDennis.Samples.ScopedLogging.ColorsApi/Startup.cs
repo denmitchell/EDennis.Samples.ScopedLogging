@@ -52,18 +52,18 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
                             );
 
 
-
-            services.AddScoped<ColorRepo>(f => {
-                var loggers = f.GetRequiredService<IEnumerable<ILogger<ColorRepo>>>();
-                var scopeProperties = f.GetRequiredService<ScopeProperties>();
-                var activeLogger = loggers.ElementAt(scopeProperties.LoggerIndex);
-                var context = f.GetRequiredService<ColorDbContext>();
-                var repo = (ColorRepo)new ProxyGenerator()
-                    .CreateClassProxy(typeof(ColorRepo),
-                        new object[] { context, scopeProperties, activeLogger },
-                        new TraceInterceptor(activeLogger,scopeProperties));
-                return repo;
-            });
+            services.AddScoped<ColorRepo, ColorDbContext>();
+            //services.AddScoped<ColorRepo>(f => {
+            //    var loggers = f.GetRequiredService<IEnumerable<ILogger<ColorRepo>>>();
+            //    var scopeProperties = f.GetRequiredService<ScopeProperties>();
+            //    var activeLogger = loggers.ElementAt(scopeProperties.LoggerIndex);
+            //    var context = f.GetRequiredService<ColorDbContext>();
+            //    var repo = (ColorRepo)new ProxyGenerator()
+            //        .CreateClassProxy(typeof(ColorRepo),
+            //            new object[] { context, scopeProperties, activeLogger },
+            //            new TraceInterceptor(activeLogger,scopeProperties));
+            //    return repo;
+            //});
 
 
             if (Environment.EnvironmentName == "Development") {
