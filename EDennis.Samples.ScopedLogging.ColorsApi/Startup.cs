@@ -1,3 +1,4 @@
+using Castle.DynamicProxy;
 using EDennis.AspNetCore.Base;
 using EDennis.AspNetCore.Base.Logging;
 using EDennis.AspNetCore.Base.Testing;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EDennis.Samples.ScopedLogging.ColorsApi {
     public class Startup
@@ -43,9 +45,25 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
                 return new DefaultLoggerChooser(loggers);
             });
 
+
             services.AddDbContext<ColorDbContext>(options =>
                             options.UseSqlite($"Data Source={Environment.ContentRootPath}/color.db")
                             );
+
+
+
+            services.AddScoped<ColorRepo>(f => {
+                var loggers = f.GetRequiredService<IEnumerable<ILogger<ColorRepo>>>();
+                var scopeProperties = f.GetRequiredService<ScopeProperties>();
+                var activeLogger = loggers.ElementAt(scopeProperties.LoggerIndex);
+                var context = f.GetRequiredService<ColorDbContext>();
+                var repo = (ColorRepo)new ProxyGenerator()
+                    .CreateClassProxy(typeof(ColorRepo),
+                        new object[] { context, scopeProperties, activeLogger },
+                        new TraceInterceptor(activeLogger));
+                return repo;
+            });
+
 
             if (Environment.EnvironmentName == "Development") {
                 services.AddSwaggerGen(c => {
