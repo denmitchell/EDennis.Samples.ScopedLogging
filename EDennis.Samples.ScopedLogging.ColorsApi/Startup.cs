@@ -52,7 +52,9 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
                             );
 
 
-            services.AddScoped<ColorRepo, ColorDbContext>();
+            //services.AddScoped<ColorRepo, ColorDbContext>();
+            services.AddScopedTraceable<ColorRepo>();
+
             //services.AddScoped<ColorRepo>(f => {
             //    var loggers = f.GetRequiredService<IEnumerable<ILogger<ColorRepo>>>();
             //    var scopeProperties = f.GetRequiredService<ScopeProperties>();
