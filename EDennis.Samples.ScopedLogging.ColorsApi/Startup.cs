@@ -36,25 +36,28 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
 
             services.AddScoped<ScopeProperties>();
 
-            
-            services.AddSingleton(typeof(ILogger<>), typeof(SerilogVerboseLogger<>));
-            services.AddSingleton(typeof(ILogger<>), typeof(SerilogDebugLogger<>));
-            
-
-            services.AddSingleton<ILoggerChooser>(f => {
-                var loggers = f.GetRequiredService<IEnumerable<ILogger<object>>>();
-                return new DefaultLoggerChooser(loggers);
-            });
-
-
             services.AddDbContext<ColorDbContext>(options =>
                             options.UseSqlite($"Data Source={Environment.ContentRootPath}/color.db")
                             );
 
+            //add secondary loggers for on-demand, per-user verbose and debug logging
+            services.AddSecondaryLoggers(typeof(SerilogVerboseLogger<>), typeof(SerilogDebugLogger<>));
 
-            //services.AddScoped<ColorRepo, ColorDbContext>();
+            //add ColorRepo as Scoped Castle.Core.DynamicProxy with TraceInterceptor
             services.AddScopedTraceable<ColorRepo>();
 
+            #region old
+
+            //services.AddSingleton(typeof(ILogger<>), typeof(SerilogVerboseLogger<>));
+            //services.AddSingleton(typeof(ILogger<>), typeof(SerilogDebugLogger<>));
+
+
+            //services.AddSingleton<ILoggerChooser>(f => {
+            //    var loggers = f.GetRequiredService<IEnumerable<ILogger<object>>>();
+            //    return new DefaultLoggerChooser(loggers);
+            //});
+
+            //services.AddScoped<ColorRepo, ColorDbContext>();
             //services.AddScoped<ColorRepo>(f => {
             //    var loggers = f.GetRequiredService<IEnumerable<ILogger<ColorRepo>>>();
             //    var scopeProperties = f.GetRequiredService<ScopeProperties>();
@@ -67,6 +70,7 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
             //    return repo;
             //});
 
+            #endregion
 
             if (Environment.EnvironmentName == "Development") {
                 services.AddSwaggerGen(c => {

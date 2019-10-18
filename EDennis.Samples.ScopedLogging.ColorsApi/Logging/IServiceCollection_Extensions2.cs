@@ -1,8 +1,10 @@
 ﻿using Castle.DynamicProxy;
 using EDennis.AspNetCore.Base;
+using EDennis.AspNetCore.Base.Logging;
 using EDennis.Samples.ScopedLogging.ColorsApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -64,7 +66,6 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
                     .CreateClassProxy(typeof(TImplementation), args,
                         new TraceInterceptor(activeLogger, scopeProperties));
 
-            //return services.AddScoped(p => {
                 return proxy;
             }, serviceLifetime));
 
@@ -73,33 +74,48 @@ namespace EDennis.Samples.ScopedLogging.ColorsApi {
 
 
 
+        public static IServiceCollection AddSecondaryLoggers(this IServiceCollection services,
+            params Type[] types) {
+
+            services.TryAddSingleton<ILoggerChooser>(f => {
+                var loggers = f.GetRequiredService<IEnumerable<ILogger<object>>>();
+                return new DefaultLoggerChooser(loggers);
+            });
+            for (int i = 0; i < types.Length; i++)
+                services.AddSingleton(typeof(ILogger<>), types[i]);
+
+            return services;
+        }
 
 
-        public static Type GetIEnumerableType<T>(T type)
+
+        private static Type GetIEnumerableType<T>(T type)
             where T: Type {
 
             var iEnumerableType = typeof(IEnumerable<>);
             var constructedIEnumerableType = iEnumerableType.MakeGenericType(type);
 
             return constructedIEnumerableType;
-            //var instance = Activator.CreateInstance(constructedIEnumerableType);
         }
 
-        public static IServiceCollection AddScoped<TRepo,TContext>(this IServiceCollection services)
-            where TRepo : class
-            where TContext : DbContext {
-            return services.AddScoped(f => {
-                var loggers = f.GetRequiredService<IEnumerable<ILogger<TRepo>>>();
-                var scopeProperties = f.GetRequiredService<ScopeProperties>();
-                var activeLogger = loggers.ElementAt(scopeProperties.LoggerIndex);
-                var context = f.GetRequiredService<TContext>();
-                var repo = (TRepo)new ProxyGenerator()
-                    .CreateClassProxy(typeof(TRepo),
-                        new object[] { context, scopeProperties, activeLogger },
-                        new TraceInterceptor(activeLogger, scopeProperties));
-                return repo;
-            });
 
-        }
+
+
+        //public static IServiceCollection AddScoped<TRepo,TContext>(this IServiceCollection services)
+        //    where TRepo : class
+        //    where TContext : DbContext {
+        //    return services.AddScoped(f => {
+        //        var loggers = f.GetRequiredService<IEnumerable<ILogger<TRepo>>>();
+        //        var scopeProperties = f.GetRequiredService<ScopeProperties>();
+        //        var activeLogger = loggers.ElementAt(scopeProperties.LoggerIndex);
+        //        var context = f.GetRequiredService<TContext>();
+        //        var repo = (TRepo)new ProxyGenerator()
+        //            .CreateClassProxy(typeof(TRepo),
+        //                new object[] { context, scopeProperties, activeLogger },
+        //                new TraceInterceptor(activeLogger, scopeProperties));
+        //        return repo;
+        //    });
+
+        //}
     }
 }
